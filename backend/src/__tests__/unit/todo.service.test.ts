@@ -10,6 +10,7 @@ describe('TodoService', () => {
     jest.clearAllMocks();
   });
 
+  //-----Unit tests for createTodo-----
   describe('createTodo', () => {
     it('should create a new todo successfully', async () => {
       const mockTodo = {
@@ -54,6 +55,7 @@ describe('TodoService', () => {
     });
   });
 
+  //-----Unit tests for getTodos-----
   describe('getTodos', () => {
     it('should return all todos successfully', async () => {
       const mockTodos = [
@@ -89,6 +91,32 @@ describe('TodoService', () => {
       (sqlPool.execute as jest.Mock).mockRejectedValueOnce(new Error('Database error'));
 
       await expect(todoService.getTodos()).rejects.toThrow('Failed to fetch todos');
+    });
+  });
+
+  //-----Unit tests for completeTodo-----
+  describe('completeTodo', () => {
+    it('should mark a todo as completed successfully', async () => {
+        const todoId = 1;
+        (sqlPool.execute as jest.Mock).mockResolvedValueOnce([ { affectedRows: 1 } ]);
+
+        await expect(todoService.completeTodo(todoId)).resolves.toBeUndefined();
+        expect(sqlPool.execute).toHaveBeenCalledWith(
+            expect.any(String),
+            [true, todoId]
+        );
+    });
+
+    it('should throw an error when the todo to complete does not exist', async () => {
+        const todoId = 999;
+        (sqlPool.execute as jest.Mock).mockResolvedValueOnce([{ affectedRows: 0 }]);
+        await expect(todoService.completeTodo(todoId)).rejects.toThrow('Todo not found');
+    });
+
+    it('should throw an error when database query fails', async () => {
+        const todoId = 1;
+        (sqlPool.execute as jest.Mock).mockRejectedValueOnce(new Error('Database error'));
+        await expect(todoService.completeTodo(todoId)).rejects.toThrow('Failed to complete todo');
     });
   });
 });
