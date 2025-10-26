@@ -119,4 +119,30 @@ describe('TodoService', () => {
         await expect(todoService.completeTodo(todoId)).rejects.toThrow('Failed to complete todo');
     });
   });
+
+  //-----Unit tests for removeTodo-----
+  describe('removeTodo', () => {
+    it('should remove a todo successfully', async () => {
+        const todoId = 1;
+      (sqlPool.execute as jest.Mock).mockResolvedValueOnce([{ affectedRows: 1 }]);
+      
+        await expect(todoService.removeTodo(todoId)).resolves.toBeUndefined();
+        expect(sqlPool.execute).toHaveBeenCalledWith(
+            expect.any(String),
+            [todoId]
+        );
+    });
+
+    it('should throw an error when the todo to remove does not exist', async () => {
+        const todoId = 999;
+      (sqlPool.execute as jest.Mock).mockResolvedValueOnce([{ affectedRows: 0 }]);
+        await expect(todoService.removeTodo(todoId)).rejects.toThrow('Todo not found');
+    });
+
+    it('should throw an error when database query fails', async () => {
+        const todoId = 1;
+      (sqlPool.execute as jest.Mock).mockRejectedValueOnce(new Error('Database error'));
+        await expect(todoService.removeTodo(todoId)).rejects.toThrow('Failed to remove todo');
+    });
+  });
 });
