@@ -125,4 +125,37 @@ describe('Todo API Integration Tests', () => {
       });
     });
   });
+
+  //-----Integration tests for DELETE /api/v1/todos/:id-----
+  describe('DELETE /api/v1/todos/:id', () => {
+    it('should remove a todo successfully', async () => {
+      const todo = { title: 'Todo to be deleted', description: 'Delete me' };
+      const postResponse = await request(app).post('/api/v1/todos').send(todo);
+      const todoId = postResponse.body.id;
+
+      const deleteResponse = await request(app)
+        .delete(`/api/v1/todos/${todoId}`)
+        .expect(204);
+
+      expect(deleteResponse.body).toEqual({});
+    });
+    it('should return 400 for invalid todo ID', async () => {
+      const response = await request(app)
+        .delete('/api/v1/todos/invalid-id')
+        .expect(400);
+
+      expect(response.body).toEqual({
+        message: 'Invalid todo ID',
+      });
+    });
+    it('should return 404 when removing a non-existent todo', async () => {
+      const response = await request(app)
+        .delete('/api/v1/todos/9999')
+        .expect(404);
+
+      expect(response.body).toEqual({
+        message: 'Todo not found',
+      });
+    });
+  });
 });
