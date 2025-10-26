@@ -10,11 +10,21 @@ const envPath = process.env.NODE_ENV === 'test'
 console.log('Loading environment from:', envPath);
 dotenv.config({ path: envPath });
 
+// const baseConfig = {
+//     host: process.env.MYSQL_HOST,
+//     port: Number(process.env.MYSQL_PORT),
+//     user: process.env.MYSQL_USER,
+//     password: process.env.MYSQL_ROOT_PASSWORD,
+//     waitForConnections: true,
+//     connectionLimit: 10,
+//     queueLimit: 0,
+// };
+
 const baseConfig = {
-    host: process.env.MYSQL_HOST,
-    port: Number(process.env.MYSQL_PORT),
-    user: process.env.MYSQL_USER,
-    password: process.env.MYSQL_ROOT_PASSWORD,
+    host: 'host.docker.internal',
+    port: 3306,
+    user: 'root',
+    password: '12345',
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0,
