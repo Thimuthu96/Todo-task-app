@@ -60,6 +60,24 @@ class TodoService {
             throw new Error('Failed to complete todo');
         }
     }
+
+    //-----Remove a todo-----
+    async removeTodo(id: number): Promise<void> {
+        try {
+            const [result] = await sqlPool.execute<mysql.ResultSetHeader>(
+                'DELETE FROM task WHERE id = ?',
+                [id]
+            );
+            if (result.affectedRows === 0) {
+                throw new Error('Todo not found');
+            }
+        } catch (error) {
+            if (error instanceof Error && error.message === 'Todo not found') {
+                throw error;
+            }
+            throw new Error('Failed to remove todo');
+        }
+    }
 }
 
 export const todoService = new TodoService();
