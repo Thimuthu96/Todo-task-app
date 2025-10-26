@@ -4,10 +4,12 @@ import todoRoutes from './routes/todo.routes';
 import sqlPool from '../src/config/database';
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 app.use('/api/v1', todoRoutes);
+
+export { app };
 
 // MySQL connection pool
 let mysqlPool: mysql.Pool;
@@ -39,7 +41,9 @@ async function initializeDB() {
   }
 }
 
-app.listen(PORT, async () => {
-    await initializeDB();
-    console.log(`Server is running on port ${PORT}`);
-});
+if (process.env.NODE_ENV !== 'test') {
+    app.listen(PORT, async () => {
+        await initializeDB();
+        console.log(`Server is running on port ${PORT}`);
+    });
+}
