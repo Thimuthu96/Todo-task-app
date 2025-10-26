@@ -45,11 +45,18 @@ class TodoService {
     //-----Complete a todo-----
     async completeTodo(id: number): Promise<void> {
         try {
-            await sqlPool.execute<mysql.ResultSetHeader>(
-                'UPDATE task SET is_completed = true, updated_at = ? WHERE id = ?',
-                [new Date(), id]
+            const [result] = await sqlPool.execute<mysql.ResultSetHeader>(
+                'UPDATE task SET is_completed = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+                [true, id]
             );
+
+            if (result.affectedRows === 0) {
+                throw new Error('Todo not found');
+            }
         } catch (error) {
+            if (error instanceof Error && error.message === 'Todo not found') {
+                throw error;
+            }
             throw new Error('Failed to complete todo');
         }
     }

@@ -50,9 +50,16 @@ export const completeTodo = async (req: Request, res: Response) => {
         }
 
         await todoService.completeTodo(Number(id));
-        res.status(204).json({ message: 'Todo completed successfully' });
+        res.status(204).send();
     } catch (error) {
         console.error('Error completing todo:', error);
-        res.status(500).json({ message: 'Internal server error' });
+        if (error instanceof Error) {
+            if (error.message === 'Todo not found') {
+                return res.status(404).json({ message: error.message });
+            }
+            res.status(500).json({ message: error.message });
+        } else {
+            res.status(500).json({ message: 'Internal server error' });
+        }
     }
 };

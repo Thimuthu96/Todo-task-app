@@ -15,6 +15,7 @@ describe('Todo API Integration Tests', () => {
     await sqlPool.end();
   });
 
+  //-----Integration tests for POST /api/v1/todos-----
   describe('POST /api/v1/todos', () => {
     it('should create a new todo', async () => {
       const todo = {
@@ -59,7 +60,8 @@ describe('Todo API Integration Tests', () => {
       });
     });
   });
-
+    
+  //-----Integration tests for GET /api/v1/todos-----
   describe('GET /api/v1/todos', () => {
     it('should return all todos', async () => {
       const todo = { title: 'Test Todo', description: 'Test Description' };
@@ -88,6 +90,39 @@ describe('Todo API Integration Tests', () => {
 
       expect(Array.isArray(response.body)).toBe(true);
       expect(response.body.length).toBe(0);
+    });
+  });
+    
+  //-----Integration tests for PATCH /api/v1/todos/:id/complete-----
+  describe('PATCH /api/v1/todos/:id/complete', () => {
+    it('should mark a todo as completed', async () => {
+      const todo = { title: 'Incomplete Todo', description: 'To be completed' };
+      const postResponse = await request(app).post('/api/v1/todos').send(todo);
+      const todoId = postResponse.body.id;
+
+      const patchResponse = await request(app)
+        .patch(`/api/v1/todos/${todoId}/complete`)
+        .expect(204);
+
+      expect(patchResponse.body).toEqual({});
+    });
+    it('should return 400 for invalid todo ID', async () => {
+      const response = await request(app)
+        .patch('/api/v1/todos/invalid-id/complete')
+        .expect(400);
+
+      expect(response.body).toEqual({
+        message: 'Invalid todo ID',
+      });
+    });
+    it('should return 404 when completing a non-existent todo', async () => {
+      const response = await request(app)
+        .patch('/api/v1/todos/9999/complete')
+        .expect(404);
+
+      expect(response.body).toEqual({
+        message: 'Todo not found',
+      });
     });
   });
 });
