@@ -5,6 +5,7 @@ import {
   Stack,
   Grid,
   Button,
+  Box,
   styled,
 } from '@mui/material';
 
@@ -31,50 +32,69 @@ const CompleteButton = styled(Button)(() => ({
 function TaskList({ tasks, onTaskComplete }) {
   return (
     <>
-      <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
+      {/* <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
         Tasks
-      </Typography>
-      <Grid container spacing={2} direction="column">
-        {tasks.map((task) => (
-          <Grid item xs={12} key={task.id}>
-            <TaskCard
-              sx={{
-                p: 2,
-                transition: '0.2s ease',
-                '&:hover': { boxShadow: '0 4px 12px rgba(0,0,0,0.05)' },
-              }}
-            >
-              <CardContent
+      </Typography> */}
+      {tasks.length === 0 ? (
+        <Box
+          sx={{
+            p: 3,
+            textAlign: 'center',
+            backgroundColor: '#F9FAFB',
+            borderRadius: '12px',
+            border: '1px dashed #E5E7EB',
+          }}
+        >
+          <Typography variant="body1" color="text.secondary">
+            No incomplete tasks found
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+            All tasks have been completed!
+          </Typography>
+        </Box>
+      ) : (
+        <Grid container spacing={2} direction="column">
+          {tasks.map((task) => (
+            <Grid item xs={12} key={task.id}>
+              <TaskCard
                 sx={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'flex-start',
-                  p: 0,
+                  p: 2,
+                  transition: '0.2s ease',
+                  '&:hover': { boxShadow: '0 4px 12px rgba(0,0,0,0.05)' },
                 }}
               >
-                <Stack spacing={0.5}>
-                  <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-                    {task.title}
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{ whiteSpace: 'pre-line' }}
-                  >
-                    {task.description}
-                  </Typography>
-                </Stack>
-                <CompleteButton
-                  variant="outlined"
-                  onClick={() => onTaskComplete(task.id)}
+                <CardContent
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'flex-start',
+                    p: 0,
+                  }}
                 >
-                  Complete
-                </CompleteButton>
-              </CardContent>
-            </TaskCard>
-          </Grid>
-        ))}
-      </Grid>
+                  <Stack spacing={0.5}>
+                    <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                      {task.title}
+                    </Typography>
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      sx={{ whiteSpace: 'pre-line' }}
+                    >
+                      {task.description}
+                    </Typography>
+                  </Stack>
+                  <CompleteButton
+                    variant="outlined"
+                    onClick={() => onTaskComplete(task.id)}
+                  >
+                    Complete
+                  </CompleteButton>
+                </CardContent>
+              </TaskCard>
+            </Grid>
+          ))}
+        </Grid>
+      )}
     </>
   );
 }

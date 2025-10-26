@@ -1,29 +1,42 @@
-import { useState } from "react";
-import { Container, Grid, useTheme, useMediaQuery } from "@mui/material";
+import { useState, useEffect } from "react";
+import { Container, Grid, Box, useTheme, useMediaQuery, Alert, CircularProgress } from "@mui/material";
 import { motion, AnimatePresence } from "framer-motion";
+import { useDispatch, useSelector } from 'react-redux';
 
 import AddTaskForm from "../components/AddTaskForm";
 import TaskList from "../components/TaskList";
 import ConfirmDialog from "../components/ConfirmDialog";
+import { 
+  fetchTasks, 
+  addTask, 
+  completeTask,
+  selectIncompleteTasks,
+  selectTasksStatus,
+  selectTasksError 
+} from '../store/taskSlice';
 
 function Dashboard() {
-  const [tasks, setTasks] = useState([
-    {
-      id: 1,
-      title: "Clean home",
-      description: "Need to clean bed room",
-    },
-    {
-      id: 2,
-      title: "Study React",
-      description: "Complete the todo app tutorial",
-    },
-  ]);
+  const dispatch = useDispatch();
+  const tasks = useSelector(selectIncompleteTasks);
+  const status = useSelector(selectTasksStatus);
+  const error = useSelector(selectTasksError);
+  
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
 
-  const handleAddTask = (newTask) => {
-    setTasks([newTask, ...tasks]);
+  useEffect(() => {
+    if (status === 'idle') {
+      dispatch(fetchTasks());
+    }
+  }, [status, dispatch]);
+
+  const handleAddTask = async (newTask) => {
+    try {
+      await dispatch(addTask(newTask)).unwrap();
+      dispatch(fetchTasks()); // Refresh the task list
+    } catch (err) {
+      console.error('Failed to add task:', err);
+    }
   };
 
   const handleTaskComplete = (taskId) => {
@@ -31,9 +44,14 @@ function Dashboard() {
     setConfirmDialogOpen(true);
   };
 
-  const confirmTaskComplete = () => {
-    setTasks(tasks.filter((task) => task.id !== selectedTask));
-    setConfirmDialogOpen(false);
+  const confirmTaskComplete = async () => {
+    try {
+      await dispatch(completeTask(selectedTask)).unwrap();
+      dispatch(fetchTasks()); // Refresh the task list
+      setConfirmDialogOpen(false);
+    } catch (err) {
+      console.error('Failed to complete task:', err);
+    }
   };
 
   const theme = useTheme();
@@ -111,7 +129,19 @@ function Dashboard() {
               }}
               exit={{ opacity: 0, y: -10, transition: { duration: 0.3 } }}
             >
-              <TaskList tasks={tasks} onTaskComplete={handleTaskComplete} />
+              {status === 'loading' && (
+                <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+                  <CircularProgress />
+                </Box>
+              )}
+              {status === 'failed' && (
+                <Alert severity="error" sx={{ mb: 2 }}>
+                  {error || 'Failed to load tasks'}
+                </Alert>
+              )}
+              {status === 'succeeded' && (
+                <TaskList tasks={tasks} onTaskComplete={handleTaskComplete} />
+              )}
             </motion.div>
           </AnimatePresence>
         </Grid>
