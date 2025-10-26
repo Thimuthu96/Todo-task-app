@@ -63,3 +63,27 @@ export const completeTodo = async (req: Request, res: Response) => {
         }
     }
 };
+
+//-----Remove a todo-----
+export const removeTodo = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+
+        if (!id || isNaN(Number(id))) {
+            return res.status(400).json({ message: 'Invalid todo ID' });
+        }
+
+        await todoService.removeTodo(Number(id));
+        res.status(204).send();
+    } catch (error) {
+        console.error('Error removing todo:', error);
+        if (error instanceof Error) {
+            if (error.message === 'Todo not found') {
+                return res.status(404).json({ message: error.message });
+            }
+            res.status(500).json({ message: error.message });
+        } else {
+            res.status(500).json({ message: 'Internal server error' });
+        }
+    }
+};
