@@ -10,6 +10,7 @@ import {
   fetchTasks, 
   addTask, 
   completeTask,
+  removeTask,
   selectIncompleteTasks,
   selectTasksStatus,
   selectTasksError 
@@ -20,9 +21,20 @@ function Dashboard() {
   const tasks = useSelector(selectIncompleteTasks);
   const status = useSelector(selectTasksStatus);
   const error = useSelector(selectTasksError);
+
+  // Dialog state
+  const [dialogConfig, setDialogConfig] = useState({
+    open: false,
+    type: null,
+    taskId: null,
+    title: '',
+    message: '',
+    warningMessage: '',
+    confirmButtonText: '',
+    confirmButtonColor: 'primary'
+  });
   
-  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
-  const [selectedTask, setSelectedTask] = useState(null);
+
 
   useEffect(() => {
     if (status === 'idle') {
@@ -40,22 +52,51 @@ function Dashboard() {
   };
 
   const handleTaskComplete = (taskId) => {
-    setSelectedTask(taskId);
-    setConfirmDialogOpen(true);
+    setDialogConfig({
+      open: true,
+      type: 'complete',
+      taskId: taskId,
+      title: 'Complete Task',
+      message: 'Are you sure you want to mark this task as completed?',
+      warningMessage: 'This action will move the task to completed tasks.',
+      confirmButtonText: 'Complete',
+      confirmButtonColor: 'success'
+    });
   };
 
-  const confirmTaskComplete = async () => {
+  const handleTaskRemove = (taskId) => {
+    setDialogConfig({
+      open: true,
+      type: 'remove',
+      taskId: taskId,
+      title: 'Remove Task?',
+      message: 'Are you sure you want to remove this task?',
+      warningMessage: 'This action cannot be undone.',
+      confirmButtonText: 'Remove',
+      confirmButtonColor: 'error'
+    });
+  };
+
+  const handleDialogConfirm = async () => {
     try {
-      await dispatch(completeTask(selectedTask)).unwrap();
+      if (dialogConfig.type === 'complete') {
+        await dispatch(completeTask(dialogConfig.taskId)).unwrap();
+      } else if (dialogConfig.type === 'remove') {
+        await dispatch(removeTask(dialogConfig.taskId)).unwrap();
+      }
       dispatch(fetchTasks()); // Refresh the task list
-      setConfirmDialogOpen(false);
+      handleDialogClose();
     } catch (err) {
-      console.error('Failed to complete task:', err);
+      console.error(`Failed to ${dialogConfig.type} task:`, err);
     }
   };
 
-  const theme = useTheme();
-  const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
+  const handleDialogClose = () => {
+    setDialogConfig(prev => ({ ...prev, open: false }));
+  };
+
+  // const theme = useTheme();
+  // const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
 
   return (
     <Container
@@ -140,7 +181,11 @@ function Dashboard() {
                 </Alert>
               )}
               {status === 'succeeded' && (
-                <TaskList tasks={tasks} onTaskComplete={handleTaskComplete} />
+                <TaskList 
+                  tasks={tasks} 
+                  onTaskComplete={handleTaskComplete}
+                  onTaskRemove={handleTaskRemove}
+                />
               )}
             </motion.div>
           </AnimatePresence>
@@ -148,9 +193,14 @@ function Dashboard() {
       </Grid>
 
       <ConfirmDialog
-        open={confirmDialogOpen}
-        onClose={() => setConfirmDialogOpen(false)}
-        onConfirm={confirmTaskComplete}
+        open={dialogConfig.open}
+        onClose={handleDialogClose}
+        onConfirm={handleDialogConfirm}
+        title={dialogConfig.title}
+        message={dialogConfig.message}
+        warningMessage={dialogConfig.warningMessage}
+        confirmButtonText={dialogConfig.confirmButtonText}
+        confirmButtonColor={dialogConfig.confirmButtonColor}
       />
     </Container>
   );

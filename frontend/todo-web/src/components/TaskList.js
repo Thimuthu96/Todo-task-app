@@ -7,7 +7,10 @@ import {
   Button,
   Box,
   styled,
+  IconButton,
 } from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { color } from 'framer-motion';
 
 const TaskCard = styled(Card)(({ theme }) => ({
   height: '100%',
@@ -29,7 +32,7 @@ const CompleteButton = styled(Button)(() => ({
   },
 }));
 
-function TaskList({ tasks, onTaskComplete }) {
+function TaskList({ tasks, onTaskComplete, onTaskRemove }) {
   return (
     <>
       {/* <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
@@ -71,7 +74,7 @@ function TaskList({ tasks, onTaskComplete }) {
                     p: 0,
                   }}
                 >
-                  <Stack spacing={0.5}>
+                  <Stack spacing={1}>
                     <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
                       {task.title}
                     </Typography>
@@ -83,12 +86,22 @@ function TaskList({ tasks, onTaskComplete }) {
                       {task.description}
                     </Typography>
                   </Stack>
-                  <CompleteButton
+                  <Stack spacing={2} alignItems="flex-end">
+                    <IconButton
+                      size="small"
+                      color='#D9D9D9'
+                      sx={{color: '#D9D9D9'}}
+                      onClick={() => onTaskRemove(task.id)}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                    <CompleteButton
                     variant="outlined"
                     onClick={() => onTaskComplete(task.id)}
                   >
-                    Complete
+                    <Typography variant="body1" sx={{ fontWeight: 600, color: '#0E9E52', letterSpacing: '1.5px', fontSize: '0.875rem' }}>Done</Typography>
                   </CompleteButton>
+                  </Stack>
                 </CardContent>
               </TaskCard>
             </Grid>

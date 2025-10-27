@@ -45,7 +45,7 @@ Todo application built with Frontend(React), Backend(Node.js/TypeScript), Databa
    ```
 
 The application will be available at:
-- Frontend: http://localhost
+- Frontend: http://localhost:3000
 - API: http://localhost:3001
 
 ## Application Architecture
