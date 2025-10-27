@@ -21,7 +21,7 @@ describe('AddTaskForm', () => {
   test('Add button should be disabled when fields are empty', () => {
     render(<AddTaskForm onAddTask={mockOnAddTask} />);
     
-    const addButton = screen.getByText('Add');
+    const addButton = screen.getByText('Add').closest('button');
     expect(addButton).toBeDisabled();
   });
 
@@ -34,7 +34,7 @@ describe('AddTaskForm', () => {
     fireEvent.change(titleInput, { target: { value: 'Test Task' } });
     fireEvent.change(descriptionInput, { target: { value: 'Test Description' } });
     
-    const addButton = screen.getByText('Add');
+    const addButton = screen.getByText('Add').closest('button');
     expect(addButton).not.toBeDisabled();
   });
 

@@ -13,21 +13,33 @@ import {
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 
-function ConfirmDialog({ open, onClose, onConfirm }) {
+function ConfirmDialog({ 
+  open, 
+  onClose, 
+  onConfirm, 
+  title = "Confirm Action",
+  message = "Are you sure you want to proceed?",
+  warningMessage = "This action cannot be undone.",
+  confirmButtonText = "Confirm",
+  confirmButtonColor = "primary",
+  showWarning = true
+}) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   const content = (
     <>
       <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
-        Complete and Remove Task?
+        {title}
       </Typography>
       <Typography>
-        Are you sure you want to complete and remove this task from the list?
+        {message}
       </Typography>
-      <Typography color="error" sx={{ fontSize: "0.875rem", mt: 1, mb: 3 }}>
-        This action cannot be undone and the task will be permanently removed.
-      </Typography>
+      {showWarning && (
+        <Typography color="error" sx={{ fontSize: "0.875rem", mt: 1, mb: 3 }}>
+          {warningMessage}
+        </Typography>
+      )}
       <Box sx={{ 
         display: 'flex', 
         gap: 2, 
@@ -35,6 +47,17 @@ function ConfirmDialog({ open, onClose, onConfirm }) {
         flexDirection: isMobile ? 'column' : 'row',
         mt: isMobile ? 2 : 0
       }}>
+        <Button
+          fullWidth={isMobile}
+          variant="contained"
+          onClick={onConfirm}
+          color={confirmButtonColor}
+          sx={{
+            borderRadius: '6px',
+          }}
+        >
+          {confirmButtonText}
+        </Button>
         <Button
           fullWidth={isMobile}
           onClick={onClose}
@@ -50,18 +73,6 @@ function ConfirmDialog({ open, onClose, onConfirm }) {
           }}
         >
           Cancel
-        </Button>
-        <Button
-          fullWidth={isMobile}
-          variant="contained"
-          onClick={onConfirm}
-          sx={{
-            backgroundColor: '#10B981',
-            borderRadius: '6px',
-            '&:hover': { backgroundColor: '#0EA975' },
-          }}
-        >
-          Confirm
         </Button>
       </Box>
     </>

@@ -16,7 +16,7 @@ const StyledTextField = styled(TextField)(({ theme }) => ({
       borderColor: '#E5E7EB',
     },
     '&:hover fieldset': {
-      borderColor: '#10B981',
+      borderColor: '#0E9E52',
     },
   },
 }));
@@ -67,33 +67,44 @@ function AddTaskForm({ onAddTask }) {
           value={newTask.description}
           onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
         />
-        <Stack direction="row" spacing={1.5} justifyContent="flex-end">
+        <Stack 
+          pt={3} 
+          direction={{ xs: 'column', sm: 'row' }} 
+          spacing={1.5} 
+          justifyContent={{ xs: 'stretch', sm: 'flex-end' }}
+          width="100%"
+        >
+          
           <Button
-            sx={{
-              color: '#10B981',
-              fontWeight: 500,
-              '&:hover': { backgroundColor: 'rgba(16, 185, 129, 0.04)' },
-            }}
-            onClick={() => setNewTask({ title: '', description: '' })}
-          >
-            Clear
-          </Button>
-          <Button
+            fullWidth
             variant="contained"
             onClick={handleAddTask}
             disabled={!newTask.title || !newTask.description}
             sx={{
-              backgroundColor: '#10B981',
+              backgroundColor: '#0E9E52',
               fontWeight: 500,
               textTransform: 'none',
-              '&:hover': { backgroundColor: '#0EA975' },
+              width: { xs: '100%', sm: 'auto' },
+              '&:hover': { backgroundColor: '#0E9E52' },
               '&:disabled': {
                 backgroundColor: '#E5E7EB',
                 color: '#9CA3AF',
               },
             }}
           >
-            Add
+            <Typography variant="body1" sx={{ fontWeight: 500, color: '#fff', letterSpacing: '1.5px', fontSize: '0.875rem'  }}>Add</Typography>
+          </Button>
+          <Button
+            fullWidth
+            sx={{
+              color: '#0E9E52',
+              fontWeight: 500,
+              '&:hover': { backgroundColor: 'rgba(16, 185, 129, 0.04)' },
+              width: { xs: '100%', sm: 'auto' }
+            }}
+            onClick={() => setNewTask({ title: '', description: '' })}
+          >
+            <Typography variant="body1" sx={{ fontWeight: 600, color: '#0E9E52', letterSpacing: '1.5px', fontSize: '0.875rem'  }}>Clear</Typography>
           </Button>
         </Stack>
       </Stack>

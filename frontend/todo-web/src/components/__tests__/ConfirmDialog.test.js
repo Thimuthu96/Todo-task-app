@@ -10,6 +10,7 @@ describe('ConfirmDialog', () => {
   beforeEach(() => {
     mockOnClose.mockClear();
     mockOnConfirm.mockClear();
+    window.innerWidth = 1024; // Default to desktop view
   });
 
   const renderWithTheme = (component) => {
@@ -20,20 +21,24 @@ describe('ConfirmDialog', () => {
     );
   };
 
-  test('renders dialog with correct content when open', () => {
+  test('renders dialog with custom props', () => {
     renderWithTheme(
       <ConfirmDialog 
         open={true} 
         onClose={mockOnClose} 
-        onConfirm={mockOnConfirm} 
+        onConfirm={mockOnConfirm}
+        title="Custom Title"
+        message="Custom Message"
+        warningMessage="Custom Warning"
+        confirmButtonText="Custom Confirm"
+        confirmButtonColor="error"
       />
     );
     
-    expect(screen.getByText('Complete and Remove Task?')).toBeInTheDocument();
-    expect(screen.getByText('Are you sure you want to complete and remove this task from the list?')).toBeInTheDocument();
-    expect(screen.getByText('This action cannot be undone and the task will be permanently removed.')).toBeInTheDocument();
-    expect(screen.getByText('Cancel')).toBeInTheDocument();
-    expect(screen.getByText('Confirm')).toBeInTheDocument();
+    expect(screen.getByText('Custom Title')).toBeInTheDocument();
+    expect(screen.getByText('Custom Message')).toBeInTheDocument();
+    expect(screen.getByText('Custom Warning')).toBeInTheDocument();
+    expect(screen.getByText('Custom Confirm')).toBeInTheDocument();
   });
 
   test('calls onClose when Cancel button is clicked', () => {
