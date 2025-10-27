@@ -1,7 +1,4 @@
-Todo application built with,
-  Frontend - React
-  Backend - Node.js/TypeScript
-  Database - MySQL
+Todo application built with Frontend(React), Backend(Node.js/TypeScript), Database(MySQL)
 
 ## Start use below steps
 
