@@ -1,5 +1,7 @@
+# Build stage
 FROM node:20-alpine AS builder
 
+# Set working directory
 WORKDIR /app
 
 # Copy package files
@@ -8,26 +10,26 @@ COPY package*.json ./
 # Install dependencies
 RUN npm ci
 
-# Copy source code
-COPY src ./src
+# Copy all files
+COPY . .
 
 # Build the React app
 RUN npm run build
 
-# ============================================
-# STAGE 2: PRODUCTION STAGE
-# ============================================
-# Start fresh with lightweight nginx image
-# This image only contains nginx (10MB), not Node!
+# Production stage
 FROM nginx:alpine
 
 # Copy nginx configuration
-# This tells nginx how to serve the React app
-# Without this, React routing (React Router) won't work properly
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Copy built files from builder stage
-# --from=builder: Reference the "builder" stage from above
+COPY --from=builder /app/build /usr/share/nginx/html
+
+# Expose port 80
+EXPOSE 80
+
+# Start nginx
+CMD ["nginx", "-g", "daemon off;"]
 # /app/build: Folder created by "npm run build" in builder stage
 # /usr/share/nginx/html: Where nginx serves files from
 COPY --from=builder /app/build /usr/share/nginx/html

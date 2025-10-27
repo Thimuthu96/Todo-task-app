@@ -11,6 +11,7 @@ RUN npm install --save-dev typescript ts-node nodemon
 
 # Copy source code
 COPY src ./src
+COPY .env ./
 
 # Copy tsconfig.json
 COPY tsconfig.json ./

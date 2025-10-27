@@ -3,13 +3,15 @@ import mysql from 'mysql2/promise';
 import cors from 'cors';
 import todoRoutes from './routes/todo.routes';
 import sqlPool from '../src/config/database';
+import dotenv from 'dotenv';
 
 const app = express();
+dotenv.config();
 const PORT = process.env.PORT || 3001;
 
 // CORS configuration
 app.use(cors({
-  origin: 'http://localhost:3000', // Frontend URL
+  origin: ['http://localhost', 'http://localhost:80'], // Frontend URLs
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
