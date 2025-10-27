@@ -1,0 +1,159 @@
+import { useState, useEffect } from "react";
+import { Container, Grid, Box, useTheme, useMediaQuery, Alert, CircularProgress } from "@mui/material";
+import { motion, AnimatePresence } from "framer-motion";
+import { useDispatch, useSelector } from 'react-redux';
+
+import AddTaskForm from "../components/AddTaskForm";
+import TaskList from "../components/TaskList";
+import ConfirmDialog from "../components/ConfirmDialog";
+import { 
+  fetchTasks, 
+  addTask, 
+  completeTask,
+  selectIncompleteTasks,
+  selectTasksStatus,
+  selectTasksError 
+} from '../store/taskSlice';
+
+function Dashboard() {
+  const dispatch = useDispatch();
+  const tasks = useSelector(selectIncompleteTasks);
+  const status = useSelector(selectTasksStatus);
+  const error = useSelector(selectTasksError);
+  
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [selectedTask, setSelectedTask] = useState(null);
+
+  useEffect(() => {
+    if (status === 'idle') {
+      dispatch(fetchTasks());
+    }
+  }, [status, dispatch]);
+
+  const handleAddTask = async (newTask) => {
+    try {
+      await dispatch(addTask(newTask)).unwrap();
+      dispatch(fetchTasks()); // Refresh the task list
+    } catch (err) {
+      console.error('Failed to add task:', err);
+    }
+  };
+
+  const handleTaskComplete = (taskId) => {
+    setSelectedTask(taskId);
+    setConfirmDialogOpen(true);
+  };
+
+  const confirmTaskComplete = async () => {
+    try {
+      await dispatch(completeTask(selectedTask)).unwrap();
+      dispatch(fetchTasks()); // Refresh the task list
+      setConfirmDialogOpen(false);
+    } catch (err) {
+      console.error('Failed to complete task:', err);
+    }
+  };
+
+  const theme = useTheme();
+  const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
+
+  return (
+    <Container
+      maxWidth="xl"
+      sx={{
+        py: { xs: 2, md: 4 },
+        px: { xs: 2, md: 6 },
+        backgroundColor: "#F3F4F6",
+        minHeight: "100vh",
+        height: "100vh",
+        display: "flex",
+        alignItems: "flex-start",
+        justifyContent: "center",
+      }}
+    >
+      <Grid
+  container
+  spacing={3}
+  sx={{
+    width: "100%",
+    maxWidth: { xs: "100%", md: "1200px", lg: "1200px" },
+    minHeight: { xs: "calc(100vh - 32px)", md: "calc(100vh - 64px)" },
+    mx: "auto",
+    backgroundColor: "#fff",
+    borderRadius: "12px",
+    boxShadow: "0 4px 20px rgba(0,0,0,0.05)",
+    p: { xs: 2, md: 4 },
+    display: "flex",
+    flexDirection: { xs: "column", md: "row" },
+  }}
+>
+
+        {/* Left Side - Add Task */}
+        <Grid
+          item
+          xs={12}
+          md={8}
+          lg={9}
+          sx={{
+            flex: { md: 2 }, 
+            borderRight: { md: "1px solid #E5E7EB" },
+              pr: { md: 4, lg: 8 },
+            pl: { md: 4, lg: 4 },
+            mb: { xs: 3, md: 0 },
+            py: { md: 3, lg: 4 },
+          }}
+        >
+          <AddTaskForm onAddTask={handleAddTask} />
+        </Grid>
+
+        {/* Right Side - Task List */}
+        <Grid
+          item
+          xs={12}
+          md={4}
+          lg={3}
+          sx={{
+            flex: { md: 2 }, 
+              pl: { md: 4, lg: 6 },
+            pr: { md: 4, lg: 4 },
+            py: { md: 3, lg: 4 },
+          }}
+        >
+          <AnimatePresence mode="popLayout">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{
+                opacity: 1,
+                y: 0,
+                transition: { duration: 0.4, ease: "easeOut" },
+              }}
+              exit={{ opacity: 0, y: -10, transition: { duration: 0.3 } }}
+            >
+              {status === 'loading' && (
+                <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+                  <CircularProgress />
+                </Box>
+              )}
+              {status === 'failed' && (
+                <Alert severity="error" sx={{ mb: 2 }}>
+                  {error || 'Failed to load tasks'}
+                </Alert>
+              )}
+              {status === 'succeeded' && (
+                <TaskList tasks={tasks} onTaskComplete={handleTaskComplete} />
+              )}
+            </motion.div>
+          </AnimatePresence>
+        </Grid>
+      </Grid>
+
+      <ConfirmDialog
+        open={confirmDialogOpen}
+        onClose={() => setConfirmDialogOpen(false)}
+        onConfirm={confirmTaskComplete}
+      />
+    </Container>
+  );
+}
+
+export default Dashboard;

@@ -1,0 +1,16 @@
+CREATE DATABASE IF NOT EXISTS todo_db;
+USE todo_db;
+
+CREATE TABLE IF NOT EXISTS task (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    description TEXT NOT NULL,
+    is_completed BOOLEAN DEFAULT false,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Create the application user and grant privileges
+CREATE USER IF NOT EXISTS 'root'@'%' IDENTIFIED BY '12345';
+GRANT ALL PRIVILEGES ON todo_db.* TO 'root'@'%';
+FLUSH PRIVILEGES;

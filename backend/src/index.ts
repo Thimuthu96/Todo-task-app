@@ -1,10 +1,21 @@
 import express from 'express';
-import mysql from 'mysql2/promise'
+import mysql from 'mysql2/promise';
+import cors from 'cors';
 import todoRoutes from './routes/todo.routes';
 import sqlPool from '../src/config/database';
+import dotenv from 'dotenv';
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+dotenv.config();
+const PORT = process.env.PORT || 3001;
+
+// CORS configuration
+app.use(cors({
+  origin: ['http://localhost', 'http://localhost:80'], // Frontend URLs
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
+}));
 
 app.use(express.json());
 app.use('/api/v1', todoRoutes);
